@@ -8,6 +8,8 @@ import youtube_dl
 import ffmpeg
 import asyncio
 
+from glob import glob
+
 
 youtube_dl.utils.bug_reports_message=lambda:''
 
@@ -15,11 +17,20 @@ client = commands.Bot(command_prefix="|")
 
 status=['Anong ginagawgaw mo', 'Mark bulok ka', 'Beep Boop Pap Pap','Ginagawgaw ni mark', 'Kibong nanay mo']
 
+cogs=[path.split("\\")[-1][:-3] for path in glob("./cogs/*.py")]
+
+for cog in cogs:
+    client.load_extension(f"cogs.{cog}")
+    print(f"{cog} cog has loaded")
+
+
+queueSong=[]
+
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
     'restrictfilenames': True,
-    'noplaylist': True,
+    'noplaylist': False,
     'nocheckcertificate': True,
     'ignoreerrors': False,
     'logtostderr': False,
@@ -30,6 +41,7 @@ ytdl_format_options = {
 }
 
 ffmpeg_options = {
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
     'options': '-vn'
 }
 
@@ -58,22 +70,69 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
 @client.command(name='play', help='This command plays some music from youtube')
 async def play(ctx,url):
+
     if not ctx.message.author.voice:
-        await ctx.send('Kailangan nasa voice channel kagawgaw')
+        await ctx.send('Kailangan nasa voice channel ka gawgaw')
         return 
     else:
         channel= ctx.message.author.voice.channel
 
     await channel.connect()
 
+    
+    global queueSong
+    queueSong.append(url)
+
     server=ctx.message.guild
     voiceChannel=server.voice_client
 
     async with ctx.typing():
-        player=await YTDLSource.from_url(url, loop=client.loop,stream=True)
+        player=await YTDLSource.from_url(queueSong[0], loop=client.loop,stream=True)
         voiceChannel.play(player, after=lambda e: print('Player error: %s' %e) if e else None)
+        del(queueSong[0])
+
 
     await ctx.send(f'**Soundtrip mo:** `{player.title}` :stars:')
+
+@client.command(name='queue')
+async def queue(ctx, url):
+    global queueSong
+
+    queueSong.append(url)
+    await ctx.send(f"Nadagdag na to boss: `{url}` ")
+
+@client.command(name='remove')
+async def remove(ctx, number):
+    global queueSong
+
+    try:
+        del(queueSong[int(number)])
+        await ctx.send(f'Ito na nakapila boss `{queueSong}`')
+    
+    except :
+        await ctx.send('Wala naman na tugtog eh!!!')
+
+@client.command(name='view', help='show the queue')
+async def view(ctx):
+    await ctx.send(f"Ito yung line up boss: `{queueSong}`")
+
+
+@client.command(name='join')
+async def join(ctx):
+    if not ctx.message.author.voice:
+        await ctx.send('Kailangan nasa voice channel ka gawgaw')
+        return 
+    else:
+        channel= ctx.message.author.voice.channel
+
+    await channel.connect()
+
+@client.command(name='leave', help='This command stops the music currently playing and leaves the voice channel')
+async def leave(ctx):
+    voiceClient= ctx.message.guild.voice_client
+    await voiceClient.disconnect()
+
+
 
 @client.command(name='stop', help='This command stops the music currently playing and leaves the voice channel')
 async def stop(ctx):
@@ -101,69 +160,16 @@ async def on_message(message):
     if 'Timoti' in message.content:
          await message.channel.send("Do not disturb the `master` ples")
 
-@client.command(name='ping', help='Checks the latency of RoboMark')
-async def ping(ctx):
-    await ctx.send("**PongPorungPong** Lag: "+str(round(client.latency*1000))+" ms")
-
-@client.command(name='coinflip', help='Your boi flips a coin')
-async def coinflip(ctx):
-    await ctx.send(features.coinfliper())
-
-@client.command(name='calcu', help='Your basic calculator ex: calcu 1 + 1')
-async def calcu(ctx, num1:int, operator, num2:int):
-    embed=discord.Embed(
-        title="Calcu ni Mark",
-        description="Ito na master teka lang di ako marunong magbilang :teacher:                  " ,
-        color=discord.Color.dark_green()
-    )
-    embed.add_field(name="Eto hula ko oh: " + str(features.calculate(num1, operator, num2)), value=str(num1)+" "+str(operator)+" "+str(num2))
-    embed.set_thumbnail(url="https://i.imgur.com/vcYOMu8.jpg")
-
-    await ctx.send(embed=embed)
-
-@client.command(name="hi", help=";)")
-async def hi(ctx):
-    if str(ctx.author)=="timmm#3989":
-        await ctx.send("hi pogi :wink:")
-    else:
-        await ctx.send("gingawgaw mu, `{0.display_name}` HAHAHAHA".format(ctx.author))
-
-@client.command(name="server", help="Shows the server information and etc.")
-async def server(ctx):
-    name=str(ctx.guild.name)
-    description=str(ctx.guild.description)
-    owner=str(ctx.guild.owner)
-    id=str(ctx.guild.id)
-    region=str(ctx.guild.region)
-    memberCount=str(ctx.guild.member_count)
-    icon=str(ctx.guild.icon_url)
-
-    embed=discord.Embed(
-        title="Server information ng " + name,
-        description=description,
-        color=discord.Color.blue()
-    )
-    embed.set_thumbnail(url=icon)
-    embed.add_field(name="Amo", value=owner, inline=True)
-    embed.add_field(name="Server ID", value=id, inline=True)
-    embed.add_field(name="Rehiyon", value=region, inline=True)
-    embed.add_field(name="Ilan Nandirito", value=memberCount, inline=True)
-
-    await ctx.send(embed=embed)
 
 
+player1 = ""
+player2 = ""
+turn = ""
+gameOver = True
 
+board = []
 
-
-
-player1=""
-player2=""
-turn=""
-gameOver=True
-
-board=[]
-
-winningConditions= [
+winningConditions = [
     [0, 1, 2],
     [3, 4, 5],
     [6, 7, 8],
@@ -175,48 +181,49 @@ winningConditions= [
 ]
 
 @client.command()
-async  def tictac(ctx, p1: discord.Member, p2: discord.Member):
+async def ttt(ctx, p1: discord.Member, p2: discord.Member = None):
+    if p2 == None:
+      p2 = ctx.author
+    global count
     global player1
     global player2
     global turn
     global gameOver
-    global count
 
     if gameOver:
         global board
-        board=[":white_large_square:", ":white_large_square:", ":white_large_square:",
-                ":white_large_square:", ":white_large_square:", ":white_large_square:",
-                ":white_large_square:", ":white_large_square:", ":white_large_square:",]
-        turn=""
-        gameOver=False
-        count=0
+        await ctx.send(embed = discord.Embed(title="Tic Tac Boom Boom"))
+        board = [":white_large_square:", ":white_large_square:", ":white_large_square:",
+                 ":white_large_square:", ":white_large_square:", ":white_large_square:",
+                 ":white_large_square:", ":white_large_square:", ":white_large_square:"]
+        turn = ""
+        gameOver = False
+        count = 0
 
-        player1=p1
-        player2=p2
+        player1 = p1
+        player2 = p2
 
-        #print the board
-        line=""
+        line = ""
         for x in range(len(board)):
             if x == 2 or x == 5 or x == 8:
-                line += " " +board[x]
+                line += " " + board[x]
                 await ctx.send(line)
-                line=""
+                line = ""
             else:
-                line += " "+board[x]
+                line += " " + board[x]
 
-        #detemine who goes first
-        num=randint(1,2)
-        if num ==1:
+        num = randint(1, 2)
+        if num == 1:
             turn = player1
-            await ctx.send("Ikaw na <@" +str(player1.id)+">")
-        elif num ==2:
+            await ctx.send("Ikaw na<@" + str(player1.id) + ">.")
+        elif num == 2:
             turn = player2
-            await ctx.send("Ikaw na <@" +str(player1.id)+">")
+            await ctx.send("Ikaw na <@" + str(player2.id) + ">.")
     else:
-        await ctx.send("Wait lang boss may nalaro na")
+        await ctx.send("May naglalaro na pre teka lang")
 
 @client.command()
-async def place(ctx, pos:int):
+async def place(ctx, pos: int):
     global turn
     global player1
     global player2
@@ -224,67 +231,79 @@ async def place(ctx, pos:int):
     global count
 
     if not gameOver:
-        mark=""
+        mark = ""
         if turn == ctx.author:
             if turn == player1:
-                mark=":regional_indicator_x:"
+                mark = ":regional_indicator_x:"
             elif turn == player2:
-                mark==":o2:"
-            if 0 < pos < 10 and board[pos-1]==":white_large_square:":
-                board[pos-1]=mark
-                count+=1
+                mark = ":o2:"
+            if 0 < pos < 10 and board[pos - 1] == ":white_large_square:":
+                board[pos - 1] = mark
+                count += 1
 
-                #print board
-                line=""
+                line = ""
                 for x in range(len(board)):
                     if x == 2 or x == 5 or x == 8:
-                        line += " " +board[x]
+                        line += " " + board[x]
                         await ctx.send(line)
-                        line=""
+                        line = ""
                     else:
-                        line += " "+board[x]
+                        line += " " + board[x]
 
-                checkWinner(winningConditions,mark)
+                checkWinner(winningConditions, mark)
                 if gameOver:
-                    await ctx.send(mark + "wins!!!!")
-                elif count >=9:
-                    await ctx.send("Wala tie lang kayo!")
+                    await ctx.send(mark + " wins!")
+                elif count >= 9:
+                    await ctx.send("It's a tie!")
+                    tie()
 
-                #switch turn
-                if turn== player1:
-                    turn=player2
-                elif turn==player2:
-                    turn=player1
-
+                if turn == player1:
+                    turn = player2
+                elif turn == player2:
+                    turn = player1
             else:
-                await ctx.send("Integer 1-9 lang input boy baka may lamana na yan")
+                await ctx.send("Integer 1 - 9 lang pre tsaka yung walang laman lang ah")
         else:
-            await ctx.send("Hindi pa ikaw baliw")
-
+            await ctx.send("Hoy hindi pa ikaw")
     else:
-        await ctx.send("Hindi pa nakastart yung game")
+        await ctx.send("Please start a new game using the !ttt command.")
 
+@client.command()
+async def end(ctx):
+  global gameOver
+  if not gameOver:
+    gameOver = True
+    await ctx.send("Stopping current game...")
+  else:
+    await ctx.send("There is currently no game running!")
 
-
+def tie():
+  global gameOver
+  gameOver = True
 
 def checkWinner(winningConditions, mark):
     global gameOver
     for condition in winningConditions:
-        if board[condition[0]]==mark and board[condition[1]] == mark and board[condition[2]] == mark:
-            gameOver=True
+        if board[condition[0]] == mark and board[condition[1]] == mark and board[condition[2]] == mark:
+            gameOver = True
 
-@tictac.error
-async def tictac_error(ctx,error):
-    if isinstance(error,commands.MissingRequiredArgument):
-        await ctx.send("2 players to lods.")
+
+@ttt.error
+async def ttt_error(ctx, error):
+    print(error)
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Please mention a player for this command.")
     elif isinstance(error, commands.BadArgument):
-        await ctx.send("Mention mo dapat yung user")
+        await ctx.send("Please make sure to mention/ping player (ie. <@797023993591889920>).")
 
 @place.error
-async def place_error(ctx,error):
-    if isinstance(error,commands.MissingRequiredArgument):
-        await ctx.send("Lagay mo yung posisyon kung saan mo gusto")
+async def place_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Please enter a position you would like to mark.")
     elif isinstance(error, commands.BadArgument):
-        await ctx.send("Number lang ang input!!")
+        await ctx.send("Please make sure to enter an integer.")
 
-client.run(token)
+
+
+
+client.run("ODA3ODY4NTgzOTcxMjU4Mzc4.YB-QPw.6MRruxiMZknORQKwOcm1ULUtiRI")
