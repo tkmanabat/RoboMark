@@ -25,7 +25,6 @@ class Quirks(commands.Cog):
 
 
 
-
 def coinfliper():
     coin=['heads', 'tails']
     result=choice(coin)

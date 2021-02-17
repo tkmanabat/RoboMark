@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from aiohttp import request
 
 class Information(commands.Cog):
     def __init__(self,client):
@@ -31,6 +32,32 @@ class Information(commands.Cog):
         embed.add_field(name="Ilan Nandirito", value=memberCount, inline=True)
 
         await ctx.send(embed=embed)
+
+    @commands.command(name="covid",help="get philippine covid stats")
+    async def covid(self,ctx):
+        URL="https://disease.sh/v3/covid-19/countries/Philippines?yesterday=true&twoDaysAgo=false&strict=true&allowNull=true"
+
+        async with request("GET",URL,headers=[]) as response:
+            if response.status==200:
+                data=await response.json()
+
+                
+                embed=discord.Embed(
+                title="COVID-19 Information Philippines",
+                description="Latest Information as of today",
+                color=discord.Color.green()
+                )
+                embed.set_thumbnail(url="https://banner2.cleanpng.com/20180829/wvu/kisspng-flag-of-the-philippines-philippine-declaration-of-philiooines-flag-png-5b875882c25497.893421191535596674796.jpg")
+                embed.add_field(name="Total Cases", value=data["cases"], inline=True)
+                embed.add_field(name="Dumagdag Ngayon", value=data["todayCases"], inline=True)
+                embed.add_field(name="Namatay Ngayon", value=data["todayDeaths"], inline=False)
+                embed.add_field(name="Active Cases", value=data["active"], inline=True)
+
+                await ctx.send(embed=embed)
+            else: 
+                await ctx.send(f"API returned a {response.status} status")
+
+
 
     @commands.command(name="hi", help=";)")
     async def hi(self,ctx):
