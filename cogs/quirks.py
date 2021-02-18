@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from random import choice
+from random import choice,randint
 
 class Quirks(commands.Cog):
     def __init__(self, client):
@@ -21,6 +21,36 @@ class Quirks(commands.Cog):
         embed.set_thumbnail(url="https://i.imgur.com/vcYOMu8.jpg")
 
         await ctx.send(embed=embed)
+
+    @commands.command(name="guess", help="guessing game")
+    async def guess(self,ctx):
+        lives=3
+        number=randint(1,10)
+        await ctx.send("Guess the number from `1 to 10` :zany_face:")
+        await ctx.send("Enter the guess only ex: `1`")
+
+        while lives !=-1:
+
+            if lives==0:
+                lives=lives-1
+                await ctx.send(f"Game Over!!! The number was {number}")
+                break
+
+            guess=await self.client.wait_for("message",timeout=30)
+
+            if int(guess.content)>number:
+                lives=lives-1
+                await ctx.send(f"Your guess is **TOO BIG** , you have `{lives}` attempts left")
+            elif int(guess.content)<number:
+                lives=lives-1
+                await ctx.send(f"Your guess is **TOO SMALL** ,  you have `{lives}` attempts left")
+            elif int(guess.content)==number:
+                await ctx.send("Your guess is ***Correct*** :exploding_head: :exploding_head: :exploding_head: ")
+                break
+            
+
+
+
 
 
 
