@@ -13,7 +13,7 @@ def config(filename: str = "config"):
     except FileNotFoundError:
         raise FileNotFoundError("JSON file wasn't found")
 
-configfile = config()
+configfile = config("config")
 
 client = commands.Bot(command_prefix="|")
 
