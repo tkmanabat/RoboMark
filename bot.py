@@ -1,8 +1,11 @@
 import discord
+import os
 from discord.ext import commands, tasks
 from random import choice
 from glob import glob
+import json
 
+configfile = config()
 
 client = commands.Bot(command_prefix="|")
 
@@ -36,4 +39,13 @@ async def on_message(message):
          await message.channel.send("Do not disturb the `master` ples")
 
 
-client.run(token)
+def config(filename: str = "config"):
+    try:
+        with open(f"{filename}.json", encoding='utf8') as data:
+            return json.load(data)
+    except FileNotFoundError:
+        raise FileNotFoundError("JSON file wasn't found")
+
+
+
+client.run(configfile["token"])

@@ -67,13 +67,15 @@ class Music(commands.Cog):
         else:
             channel= ctx.message.author.voice.channel
 
-        await channel.connect()
+        if not is_connected(ctx):
+            await channel.connect()
 
         global queueSong
         queueSong.append(url)
 
         server=ctx.message.guild
         voiceChannel=server.voice_client
+
 
         async with ctx.typing():
             player=await YTDLSource.from_url(queueSong[0], loop=self.client.loop,stream=True)
@@ -113,18 +115,17 @@ class Music(commands.Cog):
 
         await channel.connect()
 
-    @commands.command(name='leave', help='This command stops the music currently playing and leaves the voice channel')
-    async def leave(self,ctx):
-        voiceClient= ctx.message.guild.voice_client
-        await voiceClient.disconnect()
-
-
 
     @commands.command(name='stop', help='This command stops the music currently playing and leaves the voice channel')
     async def stop(self,ctx):
+        queueSong.clear()
         voiceClient= ctx.message.guild.voice_client
         await voiceClient.disconnect()
 
+
+def is_connected(ctx):
+    voice_client = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
+    return voice_client and voice_client.is_connected()
 
 def setup(client):
     client.add_cog(Music(client))
