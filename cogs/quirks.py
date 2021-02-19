@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from random import choice,randint
+from aiohttp import request
 
 class Quirks(commands.Cog):
     def __init__(self, client):
@@ -47,8 +48,6 @@ class Quirks(commands.Cog):
             elif int(guess.content)==number:
                 await ctx.send("Your guess is ***Correct*** :exploding_head: :exploding_head: :exploding_head: ")
                 break
-            
-
 
 
 
