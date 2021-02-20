@@ -20,10 +20,13 @@ client = commands.Bot(command_prefix="|")
 status=['Anong ginagawgaw mo', 'Mark bulok ka', 'Beep Boop Pap Pap','Ginagawgaw ni mark', 'Kibong nanay mo']
 
 
-cogs=[path.split("\\")[-1][:-3] for path in glob("./cogs/*.py")]
-for cog in cogs:
-    client.load_extension(f"cogs.{cog}")
-    print(f"{cog} cog has loaded")
+for filename in os.listdir('./cogs'):
+  if filename.endswith('.py'):
+    client.load_extension(f'cogs.{filename[:-3]}')
+    
+  else:
+    print(f'Unable to load {filename[:-3]}')
+    
 
 
 @client.event
