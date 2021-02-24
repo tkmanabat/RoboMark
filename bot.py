@@ -2,7 +2,6 @@ import discord
 import os
 from discord.ext import commands, tasks
 from random import choice
-from glob import glob
 import json
 
 
@@ -17,7 +16,7 @@ configfile = config("config")
 
 client = commands.Bot(command_prefix="|")
 
-status=['Anong ginagawgaw mo', 'Mark bulok ka', 'Beep Boop Pap Pap','Ginagawgaw ni mark', 'Kibong nanay mo']
+status=['Anong ginagawgaw mo', 'Mark bulok ka', 'LF: GawJowa','Ginagawgaw ni mark', 'Kibong nanay mo','Gawgaw nyo pagod na','Tama na trashtalk tim','Gawgaw walang tutok', 'Tim ano ba yan','Asan kana kuya gaw','tim bat moko ginawang robot']
 
 
 for filename in os.listdir('./cogs'):
@@ -34,7 +33,7 @@ async def on_ready():
     changeStatus.start()
     print('Ready!')
 
-@tasks.loop(minutes=20)
+@tasks.loop(minutes=5)
 async def changeStatus():
     await client.change_presence(activity=discord.Game(choice(status)))
 
@@ -48,7 +47,25 @@ async def on_message(message):
          await message.channel.send("Nyay Loner :woozy_face: ")
     if 'Timoti' in message.content:
          await message.channel.send("Do not disturb the `master` ples")
+    if 'tanga' in message.content:
+         await message.channel.send("HAHAHAHA **mark** tanga :zany_face:")
+    if 'gago' in message.content:
+         await message.channel.send("HAHAHAHA gago ka mark")
+    if str(message.author)=="Gaw#0068":
+        await message.add_reaction('🖕')
+        await message.add_reaction('🤬')
+    if str(message.author)=="timmm#3989":
+        await message.add_reaction("😍")
+        await message.add_reaction("❤")
+        await message.add_reaction("🧡")
+        await message.add_reaction("💛")
+    if str(message.author)=="Boj#6437":
+        await message.add_reaction("💥")
+    if str(message.author)=="𝚁𝚊𝚣𝚣#1558":
+        await message.add_reaction("🍆")
 
+
+        
 
 
 

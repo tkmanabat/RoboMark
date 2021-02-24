@@ -109,7 +109,7 @@ class Music(commands.Cog):
     async def join(self,ctx):
         if not ctx.message.author.voice:
             await ctx.send('Kailangan nasa voice channel ka gawgaw')
-            return 
+            return
         else:
             channel= ctx.message.author.voice.channel
 
