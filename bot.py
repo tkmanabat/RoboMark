@@ -63,6 +63,9 @@ async def on_message(message):
         await message.add_reaction("💥")
     if str(message.author)=="𝚁𝚊𝚣𝚣#1558":
         await message.add_reaction("🍆")
+        await message.add_reaction("🔥")
+        
+
 
 
         
