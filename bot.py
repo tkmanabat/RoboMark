@@ -51,6 +51,8 @@ async def on_message(message):
          await message.channel.send("HAHAHAHA **mark** tanga :zany_face:")
     if 'gago' in message.content:
          await message.channel.send("HAHAHAHA gago ka mark")
+    if 'Razz' in message.content:
+         await message.channel.send("Bakit mo hinahanap yung gwapo")    
     if str(message.author)=="Gaw#0068":
         await message.add_reaction('🖕')
         await message.add_reaction('🤬')
