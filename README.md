@@ -1,7 +1,7 @@
 <p align ="center"><img src="the-googly-eye-meme.jpg"></p>
 
 <h1 align="center">RoboMark</h1>
-RoboMark is a work in progress a fun general tagalog bot for discord that I made. It is powered by discord.py. It contains a youtube music player, tictactoe, covid tracker, and other quirks :zany_face:
+RoboMark is a work in progress a fun general tagalog bot for discord that we made. It is powered by discord.py. It contains a youtube music player, tictactoe, covid tracker, and other quirks :zany_face:
 
 ## These are the features are divided into cogs
 
@@ -26,6 +26,18 @@ RoboMark is a work in progress a fun general tagalog bot for discord that I made
         <ul>
             <li>Play tictactoe!</li>
         </ul>
+    <li>Gif Cog 👁️</li>
+        <ul>
+            <li>Use the GIPHY API to find funny GIFs!</li>
+        </ul>
+    <li>Meme Cog 😜</li>
+        <ul>
+            <li>Be a living meme</li>
+        </ul>
+    <li>Translator 🌍</li>
+        <ul> 
+            <li> Translate to any language using the Google Translate API</li>
+        </ul>    
 </ol>
 
 This bot was made just for fun, feel free to fork and use it as a basic template!
